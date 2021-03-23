@@ -1,0 +1,14 @@
+int length(char s[])
+{
+int i=0;
+while(s[i]!='\0')
+i++;
+return(i);
+}
+
+
+void main()
+{
+static char str[] ="TEXT";
+printf("%d \n",length(str));
+}
