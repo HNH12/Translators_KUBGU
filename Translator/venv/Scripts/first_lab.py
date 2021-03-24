@@ -1,19 +1,19 @@
 import re
 
-
+# True - если найдено совпадение word с элементом из списка разделителей
 def is_separator(word):
     return (
         word in (';', '{', '}', '(', ')', ',', '[', ']')
     )
 
-
+# True - если найдено совпадение word с элементом из списка односоставных типов
 def is_simple_variable_type(word):
     return (
         word in ('short', 'char', 'int', 'signed', 'unsigned',
                  'long', 'float', 'double')
     )
 
-
+# True - если найдено совпадение word с элементом из списка сложных типов
 def is_composite_variable_type(word):
     return (
         word in ('signed char', 'unsigned char', 'short int',
@@ -22,30 +22,31 @@ def is_composite_variable_type(word):
                   'signed long', 'long double')
     )
 
-
+# True - если найдено совпадение word с элементом из списка служебных слов
 def is_special_words(word):
     return (
         word in ('while', 'for', 'if', 'else', 'switch', 'case', 'goto', 'break',
-                 'static', 'printf', 'scanf', 'return', 'continue', 'void')
+                 'static', 'printf', 'scanf', 'return', 'continue', 'void', 'getch', 'malloc')
     )
 
+# True - если найдено совпадение word с элементом из списка операций
 def is_operator(word):
     return (
-        word in ('=', '!', '<', '>', '+', '-', '/', '%')
+        word in ('=', '!', '<', '>', '+', '-', '/', '%', '*', '$', '~')
     )
 
-
+# Добавляет new_elem в словарь dictionary, если new_elem отсуствует в указанном dictionary
 def check(key, dictionary, new_elem):
     if new_elem not in dictionary[key]:
         dictionary[key][new_elem] = len(dictionary[key]) + 1
 
-
+# Возвращает пару ключ-значение
 def return_from_dictionary(key, dictionary, word):
     elem = dictionary[key]
     number = elem[word]
     return "{0}{1}".format(key,number)
 
-
+# True - если переданная строка является числом
 def is_number(str):
     try:
         float(str)
@@ -53,13 +54,31 @@ def is_number(str):
     except ValueError:
         return False
 
-
+# True - если переданная строка является константой строкового типа
 def is_str(word):
     if word[0] == "'" or word[0] == '"':
         return True
     return False
 
+# вывод словаря в файл
+def output_table(class_lit):
+    text = str()
+    if class_lit == 'W':
+        text += 'Специальные слова' + '\n'
+    elif class_lit == 'I':
+        text += 'Идентификаторы' + '\n'
+    elif class_lit == 'O':
+        text += 'Операции' + '\n'
+    elif class_lit == 'R':
+        text += 'Разделители' + '\n'
+    elif class_lit == 'N':
+        text += 'Числовые константы' + '\n'
+    else:
+        text += 'Символьные константы' + '\n'
+    text += 'Лексема\tКод'
+    return text
 
+# Сканер лексического анализатора
 def scan(text):
     dictionary = {'W':{}, 'I':{}, 'O':{}, 'R':{}, 'N':{}, 'C':{}}
 
@@ -119,11 +138,19 @@ def scan(text):
                         check_str = False
         list_symb.append('\n')
 
-    print(dictionary)
+    file_dict = open('file_dictionary.txt', 'w')
+    for key in dictionary.keys():
+        hat = output_table(key)
+        file_dict.write(hat + '\n')
+        for couple in dictionary[key].items():
+            file_dict.write(couple[0] + '\t' + str(couple[1]) + '\n')
+        file_dict.write('\n')
+
+    file_dict.close()
 
     return list_symb
 
-
+# Возвращает переданный список, преобразованный в строку
 def print_list(list_symb):
     str = ""
     for i in range(len(list_symb)):
@@ -131,12 +158,12 @@ def print_list(list_symb):
 
     return str
 
-
+# Записывает переданную строку в файл
 def write_file(str):
     with open("file_out.txt", "w") as file:
         file.write(str)
 
-
+# Возвращает содержимое файла
 def read_file():
     with open("file_in.txt", 'r') as file:
         return list(map(str.strip, file.readlines()))
