@@ -242,7 +242,7 @@ def translate_to_opz(text):
 
 
 def main():
-    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1;} else {x+2;}', 'a = b;']))
+    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1;} else {x+2;}', 'a = b + 2/4;']))
     result = ' '.join(map(str.strip, result.split()))
     print(result)
 
