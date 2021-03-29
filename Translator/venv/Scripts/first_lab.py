@@ -100,7 +100,6 @@ def scan(text):
                         list_symb.append(return_from_dictionary('N', dictionary, word))
 
                     if is_str(word) and not(check_const):
-                        check_const = True
                         check_i = False
                         check('C', dictionary, word)
                         list_symb.append(return_from_dictionary('C', dictionary, word))

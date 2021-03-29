@@ -1,0 +1,182 @@
+def is_separator(word):
+    return (
+        word in (';', '{', '}', '(', ')', ',', '[', ']')
+    )
+
+# True - если найдено совпадение word с элементом из списка односоставных типов
+def is_simple_variable_type(word):
+    return (
+        word in ('short', 'char', 'int', 'signed', 'unsigned',
+                 'long', 'float', 'double')
+    )
+
+# True - если найдено совпадение word с элементом из списка сложных типов
+def is_composite_variable_type(word):
+    return (
+        word in ('signed char', 'unsigned char', 'short int',
+                  'signed short', 'signed short', 'unsigned short',
+                  'signed int', 'unsigned int', 'long int', 'long long',
+                  'signed long', 'long double')
+    )
+
+# True - если найдено совпадение word с элементом из списка служебных слов
+def is_special_words(word):
+    return (
+        word in ('while', 'for', 'if', 'else', 'switch', 'case', 'goto', 'break',
+                 'static', 'printf', 'scanf', 'return', 'continue', 'void', 'getch', 'malloc')
+    )
+
+# True - если найдено совпадение word с элементом из списка операций
+def is_operator(word):
+    return (
+        word in ('=', '!', '<', '>', '+', '-', '/', '%', '*', '$', '~')
+    )
+
+# Записывает переданную строку в файл
+def write_file(str):
+    with open("file_out.txt", "w") as file:
+        file.write(str)
+
+# Возвращает содержимое файла
+def read_file():
+    with open("file_in.txt", 'r') as file:
+        return list(map(str.strip, file.readlines()))
+
+
+def is_aem(str):
+    if str.find('АЭМ') != -1:
+        return True
+    return False
+
+
+def change_counter_aem(old_str):
+    arr = old_str.split()
+    arr[0] = str(int(arr[0]) + 1)
+    new_str = ' '.join(arr)
+    return new_str
+
+
+def is_func(str):
+    if str.find('Ф') != -1:
+        return True
+    return False
+
+
+def change_counter_func(old_str):
+    arr = old_str.split()
+    arr[0] = str(int(arr[0]) + 1)
+    new_str = ' '.join(arr)
+    return new_str
+
+
+def priority(symb):
+    if symb in ['(', '[', 'Ф'] or is_aem(symb):
+        return 0
+    elif symb in [')', ',', ']']:
+        return 1
+    elif symb in ['|']:
+        return 2
+    elif symb in ['&']:
+        return 3
+    elif symb in ['>', '<', '==']:
+        return 5
+    elif symb in ['+', '-']:
+        return 6
+    elif symb in ['*', '/']:
+        return 7
+    elif symb in ['**']:
+        return 8
+    else:
+        return -1
+
+
+def is_number(str):
+    try:
+        float(str)
+        return True
+    except ValueError:
+        return False
+
+
+def translate_to_opz(text):
+    stack = list()
+    out_str = ''
+    for line in text:
+        word = ''
+        check_str = False
+        check_func = False
+        for i in range(len(line)):
+            if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
+                if priority(word) == -1 and not(is_separator(word)):
+                    out_str += word + ' '
+
+                if line[i] == '[' and priority(word) == -1:
+                    stack.append('2 АЭМ')
+
+                elif line[i] == '(' and priority(word) == -1 and not(is_number(word)):
+                    stack.append('1 Ф')
+                    check_func = True
+
+                elif line[i] == ',':
+                    while not(is_aem(stack[-1])) and not(is_func(stack[-1])):
+                        last_elem = stack.pop()
+                        out_str += last_elem + ' '
+                    if is_aem(stack[-1]):
+                        stack[-1] = change_counter_aem(stack[-1])
+                    elif is_func(stack[-1]):
+                        stack[-1] = change_counter_func(stack[-1])
+
+                elif line[i] == ']':
+                    last_elem = stack.pop()
+                    out_str += last_elem + ' '
+
+                elif line[i] == ')' and check_func:
+                    while not(is_func(stack[-1])):
+                        out_str += stack.pop() + ' '
+                    last_elem = stack.pop()
+                    out_str += change_counter_func(last_elem) + ' '
+
+                elif len(stack) == 0 and priority(line[i]) > -1:
+                    stack.append(line[i])
+
+                elif line[i] == '(':
+                    stack.append(line[i])
+
+                elif line[i] == ')':
+                    while stack[-1] != '(':
+                        out_str += stack.pop() + ' '
+                    stack.pop()
+
+                elif ((priority(stack[-1]) <= priority(line[i])) and priority(line[i]) > -1) or is_aem(stack[-1]) or is_func(stack[-1]):
+                    stack.append(line[i])
+
+                elif priority(stack[-1]) > priority(line[i]) and priority(line[i]) > -1:
+                    print(stack)
+                    while len(stack) > 0 and priority(stack[-1]) > priority(line[i]) and not(is_aem(stack[-1])) and not(is_func(stack[-1])):
+                        last_elem = stack.pop()
+                        out_str += last_elem + ' '
+                    stack.append(line[i])
+
+                word = ''
+
+            else:
+                word += line[i]
+                if line[i] == "'" or line[i] == '"':
+                    if check_str == False:
+                        check_str = True
+                    else:
+                        check_str = False
+
+        while len(stack) > 0:
+            last_elem = stack.pop()
+            out_str += last_elem + ' '
+
+    print(out_str)
+
+
+def main():
+    translate_to_opz(['a[1+2,3]*c;', 'y-f(x,z,y+2);'])
+
+
+if __name__ == '__main__':
+    main()
