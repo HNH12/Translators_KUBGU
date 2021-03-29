@@ -50,9 +50,7 @@ def is_aem(str):
 
 
 def change_counter_aem(old_str):
-    arr = old_str.split()
-    arr[0] = str(int(arr[0]) + 1)
-    new_str = ' '.join(arr)
+    new_str = str(int(old_str[0]) + 1) + old_str[1:]
     return new_str
 
 
@@ -63,9 +61,7 @@ def is_func(str):
 
 
 def change_counter_func(old_str):
-    arr = old_str.split()
-    arr[0] = str(int(arr[0]) + 1)
-    new_str = ' '.join(arr)
+    new_str = str(int(old_str[0]) + 1) + old_str[1]
     return new_str
 
 
@@ -136,11 +132,11 @@ def translate_to_opz(text):
 
                 # Старт перевода в опз записи массива (приоритет для того, что отследить, что это идентификатор)
                 elif line[i] == '[' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
-                    stack.append('2 АЭМ')
+                    stack.append('2АЭМ')
 
                 # Старт перевода в опз записи функции (опять же приоритет)
                 elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
-                    stack.append('1 Ф')
+                    stack.append('1Ф')
                     check_func = True
 
                 # По шагу из методички. Если запятая, то выносим все до ключевого слова
@@ -240,7 +236,9 @@ def translate_to_opz(text):
 
 
 def main():
-    print(translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1; }']))
+    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1; }']))
+    result = ' '.join(map(str.strip, result.split()))
+    print(result)
 
 
 if __name__ == '__main__':
