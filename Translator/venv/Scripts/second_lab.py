@@ -70,18 +70,20 @@ def priority(symb):
         return 0
     elif symb in [')', ',', ']', 'else']:
         return 1
-    elif symb in ['|']:
+    elif symb in ['=']:
         return 2
-    elif symb in ['&']:
+    elif symb in ['|']:
         return 3
+    elif symb in ['&']:
+        return 4
     elif symb in ['>', '<', '==']:
-        return 5
-    elif symb in ['+', '-']:
         return 6
-    elif symb in ['*', '/']:
+    elif symb in ['+', '-']:
         return 7
-    elif symb in ['**']:
+    elif symb in ['*', '/']:
         return 8
+    elif symb in ['**']:
+        return 9
     else:
         return -1
 
@@ -124,14 +126,17 @@ def translate_to_opz(text):
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
 
+                if line[i] == '=':
+                    stack.append(line[i])
+
                 # Старт перевода в условный оператор
-                if word == 'if':
+                elif word == 'if':
                     check_if = True
                     stack.append(word)
                     stack.append('(')
 
                 # Старт перевода в опз записи массива (приоритет для того, что отследить, что это идентификатор)
-                elif line[i] == '[' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
+                elif line[i] == '[' and priority(word) == -1 and not(is_number(word)) and word != '' and word!='if':
                     stack.append('2АЭМ')
 
                 # Старт перевода в опз записи функции (опять же приоритет)
@@ -189,12 +194,12 @@ def translate_to_opz(text):
                     check_end_if = False
                     stack.pop()
 
-                # Если без else, то другое завершение
-                elif line[i] == '}' and check_end_if:
-                    while not(is_m(stack[-1])):
-                        out_str += stack.pop() + ' '
-                    out_str += stack.pop() + ': '
-                    stack.pop()
+                # # Если без else, то другое завершение
+                # elif line[i] == '}' and check_end_if and not(check_else):
+                #     while not(is_m(stack[-1])):
+                #         out_str += stack.pop() + ' '
+                #     out_str += stack.pop() + ': '
+                #     stack.pop()
 
                 elif len(stack) == 0 and priority(line[i]) > -1 and line[i] != '':
                     stack.append(line[i])
@@ -207,16 +212,17 @@ def translate_to_opz(text):
                         out_str += stack.pop() + ' '
                     stack.pop()
 
-                # Чтобы специальные обозначения не смущали операции при заносе в стек
-                elif ((priority(stack[-1]) <= priority(line[i])) and priority(line[i]) > -1 and line[i] != '') or is_aem(stack[-1]) or is_func(stack[-1]) or is_if(stack[-1]):
-                    stack.append(line[i])
+                elif len(stack) > 0:
+                    # Чтобы специальные обозначения не смущали операции при заносе в стек
+                    if ((priority(stack[-1]) <= priority(line[i])) and priority(line[i]) > -1 and line[i] != '') or is_aem(stack[-1]) or is_func(stack[-1]) or is_if(stack[-1]):
+                        stack.append(line[i])
 
-                # Чтобы специальные обозначения не смущали операции при заносе в стек
-                elif priority(stack[-1]) > priority(line[i]) and priority(line[i]) > -1 and line[i] != '':
-                    while len(stack) > 0 and priority(stack[-1]) > priority(line[i]) and not(is_aem(stack[-1])) and not(is_func(stack[-1])) and not(is_if(stack[-1])):
-                        last_elem = stack.pop()
-                        out_str += last_elem + ' '
-                    stack.append(line[i])
+                    # Чтобы специальные обозначения не смущали операции при заносе в стек
+                    elif priority(stack[-1]) > priority(line[i]) and priority(line[i]) > -1 and line[i] != '':
+                        while len(stack) > 0 and priority(stack[-1]) > priority(line[i]) and not(is_aem(stack[-1])) and not(is_func(stack[-1])) and not(is_if(stack[-1])):
+                            last_elem = stack.pop()
+                            out_str += last_elem + ' '
+                        stack.append(line[i])
 
                 word = ''
 
@@ -228,7 +234,7 @@ def translate_to_opz(text):
                     else:
                         check_str = False
 
-        while len(stack) > 0:
+        while len(stack) > 0 and stack[-1]:
             last_elem = stack.pop()
             out_str += last_elem + ' '
 
@@ -236,7 +242,7 @@ def translate_to_opz(text):
 
 
 def main():
-    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1; }']))
+    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1;} else {x+2;}', 'a = b;']))
     result = ' '.join(map(str.strip, result.split()))
     print(result)
 
