@@ -110,13 +110,16 @@ def translate_to_opz(text):
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
 
-                if line[i] == '[' and priority(word) == -1:
+                # Старт перевода в опз записи массива (приоритет для того, что отследить, что это идентификатор)
+                if line[i] == '[' and priority(word) == -1 and not(is_number(word)) and word != '':
                     stack.append('2 АЭМ')
 
-                elif line[i] == '(' and priority(word) == -1 and not(is_number(word)):
+                # Старт перевода в опз записи функции (опять же приоритет)
+                elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '':
                     stack.append('1 Ф')
                     check_func = True
 
+                # По шагу из методички. Если запятая, то выносим все до ключевого слова
                 elif line[i] == ',':
                     while not(is_aem(stack[-1])) and not(is_func(stack[-1])):
                         last_elem = stack.pop()
@@ -126,17 +129,20 @@ def translate_to_opz(text):
                     elif is_func(stack[-1]):
                         stack[-1] = change_counter_func(stack[-1])
 
+                # Если закрывается запись массива, то просто выводим в строку АЭМ
                 elif line[i] == ']':
                     last_elem = stack.pop()
                     out_str += last_elem + ' '
 
+                # То же самое, но с Ф (вывести все до Ф)
                 elif line[i] == ')' and check_func:
                     while not(is_func(stack[-1])):
                         out_str += stack.pop() + ' '
                     last_elem = stack.pop()
                     out_str += change_counter_func(last_elem) + ' '
+                    check_func = False
 
-                elif len(stack) == 0 and priority(line[i]) > -1:
+                elif len(stack) == 0 and priority(line[i]) > -1 and line[i] != '':
                     stack.append(line[i])
 
                 elif line[i] == '(':
@@ -147,11 +153,12 @@ def translate_to_opz(text):
                         out_str += stack.pop() + ' '
                     stack.pop()
 
-                elif ((priority(stack[-1]) <= priority(line[i])) and priority(line[i]) > -1) or is_aem(stack[-1]) or is_func(stack[-1]):
+                # Чтобы специальные обозначения не смущали операции при заносе в стек
+                elif ((priority(stack[-1]) <= priority(line[i])) and priority(line[i]) > -1 and line[i] != '') or is_aem(stack[-1]) or is_func(stack[-1]):
                     stack.append(line[i])
 
-                elif priority(stack[-1]) > priority(line[i]) and priority(line[i]) > -1:
-                    print(stack)
+                # Чтобы специальные обозначения не смущали операции при заносе в стек
+                elif priority(stack[-1]) > priority(line[i]) and priority(line[i]) > -1 and line[i] != '':
                     while len(stack) > 0 and priority(stack[-1]) > priority(line[i]) and not(is_aem(stack[-1])) and not(is_func(stack[-1])):
                         last_elem = stack.pop()
                         out_str += last_elem + ' '
@@ -175,7 +182,7 @@ def translate_to_opz(text):
 
 
 def main():
-    translate_to_opz(['a[1+2,3]*c;', 'y-f(x,z,y+2);'])
+    translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);'])
 
 
 if __name__ == '__main__':
