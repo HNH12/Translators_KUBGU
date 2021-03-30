@@ -1,11 +1,11 @@
-void main()
+y-f(x,z,y+2);
+if(b<c)
 {
-int I;
-int J;
-int C;
-printf("How many meters? \n");
-scanf("%d",&I);
-J=100*I;
-printf("%d meters contain %d centimeters \n", I,J);
-C=getch();
+x+3;
 }
+else {
+x+4;
+}
+char a, e, m;
+int b = 4;
+int c = a+b;

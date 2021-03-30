@@ -66,7 +66,7 @@ def change_counter_func(old_str):
 
 
 def priority(symb):
-    if symb in ['(', '[', 'Ф', 'if'] or is_aem(symb):
+    if symb in ['(', '[', 'Ф', 'if', '{'] or is_aem(symb):
         return 0
     elif symb in [')', ',', ']', 'else']:
         return 1
@@ -141,18 +141,19 @@ def counter_variable_type(word):
 def translate_to_opz(text):
     stack = list()
     out_str = ''
+    check_if = False
+    check_else = False
+    check_end_if = False
+
     for line in text:
         word = ''
         check_str = False
         check_func = False
-        check_if = False
-        check_else = False
-        check_end_if = False
         check_type = False
 
         for i in range(len(line)):
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
-                print(word, is_simple_variable_type(word))
+                print(word, stack)
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
 
@@ -212,6 +213,7 @@ def translate_to_opz(text):
                     check_end_if = True
                     stack.append('М1')
                     out_str += stack[-1] + ' УПЛ '
+                    stack.append('{')
 
                 # Обрабатывает else
                 elif word == 'else':
@@ -225,7 +227,11 @@ def translate_to_opz(text):
                 elif line[i] == '}' and check_else:
 
                     while not(is_m(stack[-1])):
-                        out_str += stack.pop() + ' '
+                        if stack[-1] != '{':
+                            out_str += stack.pop() + ' '
+                        else:
+                            stack.pop()
+
                     out_str += stack.pop() + ': '
                     check_else = False
                     check_end_if = False
@@ -237,6 +243,11 @@ def translate_to_opz(text):
                 #         out_str += stack.pop() + ' '
                 #     out_str += stack.pop() + ': '
                 #     stack.pop()
+
+                elif line[i] == '}':
+                    while stack[-1] != '{':
+                        out_str += stack.pop() + ' '
+                    stack.pop()
 
                 # Прописывается отдельное условие под word,здесь через elif, потому что
                 # после типа не может встретиться какой-нибудь разделитель или операция
@@ -270,6 +281,10 @@ def translate_to_opz(text):
                             out_str += last_elem + ' '
                         stack.append(line[i])
 
+                if line[i] == ';':
+                    while (len(stack) > 0 and stack[-1] != '{' and stack[-1] != 'if'):
+                        out_str += stack.pop() + ' '
+
                 word = ''
 
             else:
@@ -280,15 +295,11 @@ def translate_to_opz(text):
                     else:
                         check_str = False
 
-        while len(stack) > 0 and stack[-1]:
-            last_elem = stack.pop()
-            out_str += last_elem + ' '
-
     return out_str
 
 
 def main():
-    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1;} else {x+2;}', 'a = b + 2/4 - (1+14)*4;', 'int ax = 2,b,c;', 'char a;']))
+    result = (translate_to_opz(read_file()))
     result = ' '.join(map(str.strip, result.split()))
     print(result)
 
