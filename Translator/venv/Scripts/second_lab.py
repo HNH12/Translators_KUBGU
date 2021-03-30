@@ -1,3 +1,6 @@
+import first_lab as fl
+
+
 def is_separator(word):
     return (
         word in (';', '{', '}', '(', ')', ',', '[', ']')
@@ -340,7 +343,9 @@ def translate_to_opz(text):
 def main():
     result = (translate_to_opz(read_file()))
     result = ' '.join(map(str.strip, result.split()))
-    print(result)
+    print('ОПЗ: \n', result, '\n')
+    print('ОПЗ после обработки лексического анализатора:\n')
+    fl.write_file(fl.print_list(fl.scan([result])))
 
 
 if __name__ == '__main__':
