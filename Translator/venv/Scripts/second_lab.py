@@ -141,9 +141,21 @@ def counter_variable_type(word):
 def translate_to_opz(text):
     stack = list()
     out_str = ''
+
+    # Флаг начала блока if
     check_if = False
+
+    # Флаг начала блока else
     check_else = False
+
+    # Флаг конца блока if
     check_end_if = False
+
+    # Количество объявленных функций
+    count_func = 0
+
+    # Количество открывающих скобок, находящихся в стеке
+    count_curly_braces = 0
 
     for line in text:
         word = ''
@@ -171,17 +183,13 @@ def translate_to_opz(text):
 
                 # Старт перевода в опз записи функции (опять же приоритет)
                 elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
-
                     stack.append('1Ф')
-                    print(word, stack)
                     check_func = True
-
-                elif line[i] == ',' and check_func and check_type:
-                    out_str += stack.pop() + ' '
 
                 # Если мы встретили запятую и при этом мы рассматриваем переменные какого-то типа, то нужно убрать все
                 # до последнего слова типа и увеличить счетчик переменных на 1 (как и со всеми предыдущими операторами)
-                elif line[i] == ',' and check_type:
+                # Not(check_func) - не ситуация при объявлении типа параметров. Иначе запятая будет играть другую роль.
+                elif line[i] == ',' and check_type and not(check_func):
                     while not(check_counter_variable_type(stack[-1])):
                         out_str += stack.pop() + ' '
                     stack[-1] = counter_variable_type(stack[-1])
@@ -203,15 +211,22 @@ def translate_to_opz(text):
 
                 # То же самое, но с Ф (вывести все до Ф)
                 elif line[i] == ')' and check_func:
-                    print(stack, 'tut')
                     while not(is_func(stack[-1])):
                         out_str += stack.pop() + ' '
                     last_elem = stack.pop()
                     out_str += change_counter_func(last_elem) + ' '
                     check_func = False
 
+                # Проверка, является ли скобка началом функции
+                elif line[i] == '{' and count_curly_braces == 0:
+                    count_func += 1
+                    count_curly_braces += 1
+                    out_str += str(count_func) + ' 1 НП '
+                    stack.append('{')
+
                 # Обрабатывает начало тела if
                 elif line[i] == '{' and check_if:
+                    count_curly_braces += 1
                     while not(is_if(stack[-1])):
                         out_str += stack.pop() + ' '
                     check_if = False
@@ -222,6 +237,7 @@ def translate_to_opz(text):
 
                 # Обрабатывает else
                 elif word == 'else':
+                    count_curly_braces += 1
                     out_str = out_str[:-5]
                     while not(is_m(stack[-1])):
                         out_str += stack.pop() + ' '
@@ -232,7 +248,7 @@ def translate_to_opz(text):
 
                 # Если else, то такое завершение
                 elif line[i] == '}' and check_else:
-
+                    count_curly_braces -= 1
                     while not(is_m(stack[-1])):
                         if stack[-1] != '{':
                             out_str += stack.pop() + ' '
@@ -248,7 +264,7 @@ def translate_to_opz(text):
                 # Если есть else, то просто из строки убирается последние 5 записей
                 # (М:, включая число и пробелы ('_М1:_')) * доделать момент со стеком *
                 elif line[i] == '}' and check_end_if:
-                    print(stack, 'h')
+                    count_curly_braces -= 1
                     while not(is_m(stack[-1])):
                         if stack[-1] != '{':
                             out_str += stack.pop() + ' '
@@ -257,7 +273,17 @@ def translate_to_opz(text):
                     out_str += stack[-1] + ': '
                     check_end_if = False
 
+                # Если в стеке только одна открывающая скобка, то закрывающая скобка
+                # показывает конец функции
+                elif line[i] == '}' and count_curly_braces == 1:
+                    count_curly_braces -= 1
+                    while stack[-1] != '{':
+                        out_str += stack.pop() + ' '
+                    stack.pop()
+                    out_str += 'КП '
+
                 elif line[i] == '}':
+                    count_curly_braces -= 1
                     while stack[-1] != '{':
                         out_str += stack.pop() + ' '
                     stack.pop()
