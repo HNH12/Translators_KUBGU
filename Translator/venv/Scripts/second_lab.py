@@ -7,7 +7,7 @@ def is_separator(word):
 def is_simple_variable_type(word):
     return (
         word in ('short', 'char', 'int', 'signed', 'unsigned',
-                 'long', 'float', 'double')
+                 'long', 'float', 'double', 'void')
     )
 
 # True - если найдено совпадение word с элементом из списка сложных типов
@@ -153,7 +153,6 @@ def translate_to_opz(text):
 
         for i in range(len(line)):
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
-                print(word, stack)
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
 
@@ -172,8 +171,13 @@ def translate_to_opz(text):
 
                 # Старт перевода в опз записи функции (опять же приоритет)
                 elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
+
                     stack.append('1Ф')
+                    print(word, stack)
                     check_func = True
+
+                elif line[i] == ',' and check_func and check_type:
+                    out_str += stack.pop() + ' '
 
                 # Если мы встретили запятую и при этом мы рассматриваем переменные какого-то типа, то нужно убрать все
                 # до последнего слова типа и увеличить счетчик переменных на 1 (как и со всеми предыдущими операторами)
@@ -199,6 +203,7 @@ def translate_to_opz(text):
 
                 # То же самое, но с Ф (вывести все до Ф)
                 elif line[i] == ')' and check_func:
+                    print(stack, 'tut')
                     while not(is_func(stack[-1])):
                         out_str += stack.pop() + ' '
                     last_elem = stack.pop()
@@ -217,11 +222,13 @@ def translate_to_opz(text):
 
                 # Обрабатывает else
                 elif word == 'else':
+                    out_str = out_str[:-5]
                     while not(is_m(stack[-1])):
                         out_str += stack.pop() + ' '
                     out_str += counter_m(stack[-1]) + ' БП ' + stack[-1] + ':'
                     stack[-1] = counter_m(stack[-1])
                     check_else = True
+                    check_end_if = False
 
                 # Если else, то такое завершение
                 elif line[i] == '}' and check_else:
@@ -237,12 +244,18 @@ def translate_to_opz(text):
                     check_end_if = False
                     stack.pop()
 
-                # # Если без else, то другое завершение
-                # elif line[i] == '}' and check_end_if and not(check_else):
-                #     while not(is_m(stack[-1])):
-                #         out_str += stack.pop() + ' '
-                #     out_str += stack.pop() + ': '
-                #     stack.pop()
+                # Выполняется всегда, даже если есть else
+                # Если есть else, то просто из строки убирается последние 5 записей
+                # (М:, включая число и пробелы ('_М1:_')) * доделать момент со стеком *
+                elif line[i] == '}' and check_end_if:
+                    print(stack, 'h')
+                    while not(is_m(stack[-1])):
+                        if stack[-1] != '{':
+                            out_str += stack.pop() + ' '
+                        else:
+                            stack.pop()
+                    out_str += stack[-1] + ': '
+                    check_end_if = False
 
                 elif line[i] == '}':
                     while stack[-1] != '{':
