@@ -72,10 +72,12 @@ def priority(symb):
         return 1
     elif symb in ['=']:
         return 2
-    elif symb in ['|']:
+    elif is_composite_variable_type(symb) or is_simple_variable_type(symb):
         return 3
-    elif symb in ['&']:
+    elif symb in ['|']:
         return 4
+    elif symb in ['&']:
+        return 5
     elif symb in ['>', '<', '==']:
         return 6
     elif symb in ['+', '-']:
@@ -95,19 +97,45 @@ def is_number(str):
     except ValueError:
         return False
 
+
 def is_if(str):
     if str.find('if') != -1:
         return True
     return False
+
 
 def is_m(str):
     if str.find('М') != -1:
         return True
     return False
 
+
 def counter_m(old_str):
     new_str = old_str[0] + str(int(old_str[1]) + 1)
     return new_str
+
+
+def check_variable_type(word):
+    if len(word) < 3:
+        return False
+    else:
+        if is_composite_variable_type(word) or is_simple_variable_type(word):
+            return True
+        return False
+
+
+def check_counter_variable_type(word):
+    arr = word.split()
+    if len(arr) > 1:
+        if check_variable_type(arr[1]):
+            return True
+    return False
+
+
+def counter_variable_type(word):
+    arr = word.split()
+    arr[0] = str(int(arr[0]) + 1)
+    return ' '.join(arr)
 
 
 def translate_to_opz(text):
@@ -120,9 +148,11 @@ def translate_to_opz(text):
         check_if = False
         check_else = False
         check_end_if = False
+        check_type = False
 
         for i in range(len(line)):
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
+                print(word, is_simple_variable_type(word))
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
 
@@ -143,6 +173,13 @@ def translate_to_opz(text):
                 elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
                     stack.append('1Ф')
                     check_func = True
+
+                # Если мы встретили запятую и при этом мы рассматриваем переменные какого-то типа, то нужно убрать все
+                # до последнего слова типа и увеличить счетчик переменных на 1 (как и со всеми предыдущими операторами)
+                elif line[i] == ',' and check_type:
+                    while not(check_counter_variable_type(stack[-1])):
+                        out_str += stack.pop() + ' '
+                    stack[-1] = counter_variable_type(stack[-1])
 
                 # По шагу из методички. Если запятая, то выносим все до ключевого слова
                 elif line[i] == ',':
@@ -201,6 +238,12 @@ def translate_to_opz(text):
                 #     out_str += stack.pop() + ': '
                 #     stack.pop()
 
+                # Прописывается отдельное условие под word,здесь через elif, потому что
+                # после типа не может встретиться какой-нибудь разделитель или операция
+                elif len(stack) == 0 and check_variable_type(word):
+                    check_type = True
+                    stack.append('1 ' + word)
+
                 elif len(stack) == 0 and priority(line[i]) > -1 and line[i] != '':
                     stack.append(line[i])
 
@@ -213,6 +256,9 @@ def translate_to_opz(text):
                     stack.pop()
 
                 elif len(stack) > 0:
+                    if check_variable_type(word):
+                        check_type = True
+                        stack.append('1 ' + word)
                     # Чтобы специальные обозначения не смущали операции при заносе в стек
                     if ((priority(stack[-1]) <= priority(line[i])) and priority(line[i]) > -1 and line[i] != '') or is_aem(stack[-1]) or is_func(stack[-1]) or is_if(stack[-1]):
                         stack.append(line[i])
@@ -242,7 +288,7 @@ def translate_to_opz(text):
 
 
 def main():
-    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1;} else {x+2;}', 'a = b + 2/4;']))
+    result = (translate_to_opz(['(a+b[i+20,j])*c+d;', 'y-f(x,z,y+2);','if(a>b) { x+1;} else {x+2;}', 'a = b + 2/4 - (1+14)*4;', 'int ax = 2,b,c;', 'char a;']))
     result = ' '.join(map(str.strip, result.split()))
     print(result)
 
