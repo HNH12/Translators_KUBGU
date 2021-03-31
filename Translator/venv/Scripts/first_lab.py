@@ -32,7 +32,7 @@ def is_special_words(word):
 # True - если найдено совпадение word с элементом из списка операций
 def is_operator(word):
     return (
-        word in ('=', '!', '<', '>', '+', '-', '/', '%', '*', '$', '~')
+        word in ('=', '!', '<', '>', '+', '-', '/', '%', '*', '$', '~', '&', '|')
     )
 
 # Добавляет new_elem в словарь dictionary, если new_elem отсуствует в указанном dictionary
@@ -113,7 +113,9 @@ def scan(text):
         check_str = False
 
         for i in range(len(line)):
+
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
+
                 check_i = True
                 check_const = False
 

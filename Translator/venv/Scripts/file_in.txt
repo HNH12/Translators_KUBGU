@@ -6,7 +6,7 @@ int pow(int a, int b) {
 void main(char param)
 {
     y-f(x,z,y+2);
-    if(b<c) {
+    if((b<a) && (a<b)) {
         x+3;
     }
     else {
