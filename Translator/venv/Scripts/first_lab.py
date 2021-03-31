@@ -26,7 +26,7 @@ def is_composite_variable_type(word):
 def is_special_words(word):
     return (
         word in ('while', 'for', 'if', 'else', 'switch', 'case', 'goto', 'break',
-                 'static', 'printf', 'scanf', 'return', 'continue', 'void', 'getch', 'malloc')
+                 'static', 'printf', 'scanf', 'return', 'continue', 'void', 'getch', 'malloc', 'new')
     )
 
 # True - если найдено совпадение word с элементом из списка операций
@@ -79,10 +79,10 @@ def is_aem(str):
     return False
 
 
-def get_paramaters_start_function(dictionary, word):
-    class_lexem = word[0]
-    number = word[1:]
-    return dictionary[class_lexem][number]
+# def get_paramaters_start_function(dictionary, word):
+#     class_lexem = word[0]
+#     number = word[1:]
+#     return dictionary[class_lexem][number]
 
 
 # вывод словаря в файл
@@ -136,9 +136,9 @@ def scan(text):
                             check('I', dictionary, word)
                             list_symb.append(return_from_dictionary('I', dictionary, word))
                         else:
-                            if word == 'НП':
-                                list_symb[-2] = str(get_paramaters_start_function(dictionary, list_symb[-2]))
-                                list_symb[-1] = str(get_paramaters_start_function(dictionary, list_symb[-1]))
+                            # if word == 'НП':
+                            #     list_symb[-2] = str(get_paramaters_start_function(dictionary, list_symb[-2]))
+                            #     list_symb[-1] = str(get_paramaters_start_function(dictionary, list_symb[-1]))
                             list_symb.append(word)
 
                 if is_simple_variable_type(word):

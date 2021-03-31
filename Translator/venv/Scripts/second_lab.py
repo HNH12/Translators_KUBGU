@@ -22,6 +22,13 @@ def is_composite_variable_type(word):
                   'signed long', 'long double')
     )
 
+
+def is_array(word):
+    if (is_composite_variable_type(word[:-2]) or is_simple_variable_type(word[:-2])) and word[-2:] == '[]':
+        return True
+    return False
+
+
 # True - если найдено совпадение word с элементом из списка служебных слов
 def is_special_words(word):
     return (
@@ -162,11 +169,15 @@ def translate_to_opz(text):
 
     for line in text:
         word = ''
+
         check_str = False
+        check_aem = False
         check_func = False
         check_type = False
+        check_arr_type = False
 
         for i in range(len(line)):
+            print(word)
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
@@ -174,15 +185,28 @@ def translate_to_opz(text):
                 if line[i] == '=':
                     stack.append(line[i])
 
+                # Доделать
+                elif line[i] == '(' and count_curly_braces == 0:
+                    out_str += stack.pop() + " "
+                    stack.append('(');
+
                 # Старт перевода в условный оператор
                 elif word == 'if':
                     check_if = True
                     stack.append(word)
                     stack.append('(')
 
+                # Обработка записи типа int[]
+                elif line[i] == '[' and check_variable_type(word):
+                    stack.append('1 ' + word)
+                    stack.append('1АЭМ')
+                    print(stack)
+                    check_aem = True
+
                 # Старт перевода в опз записи массива (приоритет для того, что отследить, что это идентификатор)
                 elif line[i] == '[' and priority(word) == -1 and not(is_number(word)) and word != '' and word!='if':
                     stack.append('2АЭМ')
+                    check_aem = True
 
                 # Старт перевода в опз записи функции (опять же приоритет)
                 elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
@@ -208,7 +232,7 @@ def translate_to_opz(text):
                         stack[-1] = change_counter_func(stack[-1])
 
                 # Если закрывается запись массива, то просто выводим в строку АЭМ
-                elif line[i] == ']':
+                elif line[i] == ']' and check_aem:
                     last_elem = stack.pop()
                     out_str += last_elem + ' '
 
@@ -327,7 +351,8 @@ def translate_to_opz(text):
                     while (len(stack) > 0 and stack[-1] != '{' and stack[-1] != 'if'):
                         out_str += stack.pop() + ' '
 
-                word = ''
+                if not(check_arr_type):
+                    word = ''
 
             else:
                 word += line[i]

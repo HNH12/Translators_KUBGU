@@ -1,18 +1,20 @@
 int pow(int a, int b) {
-    printf(a*a)
+    printf(a*a);
 }
 
+int f(a,b,c) {
+    return(a+b+c);
+}
 
 void main(char param)
 {
-    y-f(x,z,y+2);
-    if(b<c) {
-        x+3;
+    int y = f(1,2,3);
+    int code;
+    if((y<1) && (y>0)) {
+        code = y;
     }
     else {
-    x+4;
+        code = y%2;
     }
-    char a, e, m;
-    int b = 4;
-    int c = a+b;
+    printf(code);
 }
