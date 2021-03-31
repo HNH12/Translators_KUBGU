@@ -1,5 +1,5 @@
 int pow(int a, int b) {
-    printf(a*a)
+    printf(a*a);
 }
 
 

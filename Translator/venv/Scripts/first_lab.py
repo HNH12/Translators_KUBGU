@@ -60,6 +60,31 @@ def is_str(word):
         return True
     return False
 
+
+def is_m(str):
+    if str.find('М') != -1:
+        return True
+    return False
+
+
+def is_func(str):
+    if str.find('Ф') != -1:
+        return True
+    return False
+
+
+def is_aem(str):
+    if str.find('АЭМ') != -1:
+        return True
+    return False
+
+
+def get_paramaters_start_function(dictionary, word):
+    class_lexem = word[0]
+    number = word[1:]
+    return dictionary[class_lexem][number]
+
+
 # вывод словаря в файл
 def output_table(class_lit):
     text = str()
@@ -86,8 +111,8 @@ def scan(text):
     for line in text:
         word = ''
         check_str = False
-        for i in range(len(line)):
 
+        for i in range(len(line)):
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
                 check_i = True
                 check_const = False
@@ -105,8 +130,14 @@ def scan(text):
                         list_symb.append(return_from_dictionary('C', dictionary, word))
 
                     if check_i:
-                        check('I', dictionary, word)
-                        list_symb.append(return_from_dictionary('I', dictionary, word))
+                        if word not in ['УПЛ', 'НП', 'КП', 'БП'] and not(is_m(word)) and not(is_aem(word)) and not(is_func(word)):
+                            check('I', dictionary, word)
+                            list_symb.append(return_from_dictionary('I', dictionary, word))
+                        else:
+                            if word == 'НП':
+                                list_symb[-2] = str(get_paramaters_start_function(dictionary, list_symb[-2]))
+                                list_symb[-1] = str(get_paramaters_start_function(dictionary, list_symb[-1]))
+                            list_symb.append(word)
 
                 if is_simple_variable_type(word):
                     check('W', dictionary, word)
@@ -135,6 +166,9 @@ def scan(text):
                         check_str = True
                     else:
                         check_str = False
+                if word == 'КП' and i+1 == len(line):
+                    list_symb.append(word)
+
         list_symb.append('\n')
 
     file_dict = open('file_dictionary.txt', 'w')

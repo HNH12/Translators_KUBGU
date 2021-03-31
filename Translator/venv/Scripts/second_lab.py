@@ -344,8 +344,9 @@ def main():
     result = (translate_to_opz(read_file()))
     result = ' '.join(map(str.strip, result.split()))
     print('ОПЗ: \n', result, '\n')
-    print('ОПЗ после обработки лексического анализатора:\n')
-    fl.write_file(fl.print_list(fl.scan([result])))
+    result_analyzator = fl.print_list(fl.scan([result]))
+    print('ОПЗ после обработки лексического анализатора:\n', result_analyzator)
+    fl.write_file(result_analyzator)
 
 
 if __name__ == '__main__':
