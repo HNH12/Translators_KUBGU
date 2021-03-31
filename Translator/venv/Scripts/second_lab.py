@@ -185,10 +185,6 @@ def translate_to_opz(text):
                 if line[i] == '=':
                     stack.append(line[i])
 
-                # Доделать
-                elif line[i] == '(' and count_curly_braces == 0:
-                    out_str += stack.pop() + " "
-                    stack.append('(');
 
                 # Старт перевода в условный оператор
                 elif word == 'if':
@@ -210,6 +206,8 @@ def translate_to_opz(text):
 
                 # Старт перевода в опз записи функции (опять же приоритет)
                 elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
+                    if count_curly_braces == 0:
+                        out_str += stack.pop() + ' '
                     stack.append('1Ф')
                     check_func = True
 

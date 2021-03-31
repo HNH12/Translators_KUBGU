@@ -1,4 +1,4 @@
-int pow(int a, int b) {
+int[] pow(int a, int b) {
     printf(a*a);
 }
 
