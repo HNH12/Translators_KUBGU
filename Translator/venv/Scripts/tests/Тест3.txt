@@ -1,11 +1,18 @@
-void main()
-{
-int I;
-int J;
-int C;
-printf("How many meters? \n");
-scanf("%d",&I);
-J=100*I;
-printf("%d meters contain %d centimeters \n", I,J);
-C=getch();
+int[] return_array(int el) {
+    int[] arr = new int[1];
+    arr[0] = a;
+    return(arr);
+}
+
+void main(char params) {
+    int[] arr = new int[1];
+    arr[0] = return_array(12);
+    c = arr[0,0] + 24/2;
+    if(c[0,0] == 24) {
+        printf(c[0,0]);
+    }
+    else {
+        printf(24);
+    }
+    printf(c);
 }

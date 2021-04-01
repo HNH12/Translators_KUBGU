@@ -132,7 +132,7 @@ def scan(text):
                         list_symb.append(return_from_dictionary('C', dictionary, word))
 
                     if check_i:
-                        if word not in ['УПЛ', 'НП', 'КП', 'БП'] and not(is_m(word)) and not(is_aem(word)) and not(is_func(word)):
+                        if word not in ['УПЛ', 'НП', 'КП', 'БП', 'ЦФ', 'КФ', 'ЦВ', 'КВ'] and not(is_m(word)) and not(is_aem(word)) and not(is_func(word)):
                             check('I', dictionary, word)
                             list_symb.append(return_from_dictionary('I', dictionary, word))
                         else:

@@ -76,7 +76,7 @@ def change_counter_func(old_str):
 
 
 def priority(symb):
-    if symb in ['(', '[', 'Ф', 'if', '{'] or is_aem(symb):
+    if symb in ['(', '[', 'Ф', 'if', '{', 'КФ', 'for', 'while', 'КВ'] or is_aem(symb):
         return 0
     elif symb in [')', ',', ']', 'else']:
         return 1
@@ -164,6 +164,14 @@ def translate_to_opz(text):
     # Количество объявленных функций
     count_func = 0
 
+    check_for = False
+
+    check_end_for = False
+
+    check_while = False
+
+    check_end_while = False
+
     # Количество открывающих скобок, находящихся в стеке
     count_curly_braces = 0
 
@@ -177,7 +185,7 @@ def translate_to_opz(text):
         check_arr_type = False
 
         for i in range(len(line)):
-            print(word)
+            print(stack, word, line[i], check_for, check_end_for)
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
@@ -185,18 +193,26 @@ def translate_to_opz(text):
                 if line[i] == '=':
                     stack.append(line[i])
 
-
                 # Старт перевода в условный оператор
                 elif word == 'if':
                     check_if = True
                     stack.append(word)
                     stack.append('(')
 
+                elif word == 'for':
+                    stack.append('КФ')
+                    stack.append('(')
+                    check_for = True
+
+                elif word == 'while':
+                    stack.append('КВ')
+                    stack.append('(')
+                    check_while = True
+
                 # Обработка записи типа int[]
                 elif line[i] == '[' and check_variable_type(word):
                     stack.append('1 ' + word)
-                    stack.append('1АЭМ')
-                    print(stack)
+                    stack.append('0АЭМ')
                     check_aem = True
 
                 # Старт перевода в опз записи массива (приоритет для того, что отследить, что это идентификатор)
@@ -205,7 +221,7 @@ def translate_to_opz(text):
                     check_aem = True
 
                 # Старт перевода в опз записи функции (опять же приоритет)
-                elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '' and not(is_special_words(word)):
+                elif line[i] == '(' and priority(word) == -1 and not(is_number(word)) and word != '':
                     if count_curly_braces == 0:
                         out_str += stack.pop() + ' '
                     stack.append('1Ф')
@@ -260,6 +276,10 @@ def translate_to_opz(text):
                     out_str += stack[-1] + ' УПЛ '
                     stack.append('{')
 
+                elif line[i] == '{':
+                    count_curly_braces += 1
+                    stack.append('{')
+
                 # Обрабатывает else
                 elif word == 'else':
                     count_curly_braces += 1
@@ -307,6 +327,22 @@ def translate_to_opz(text):
                     stack.pop()
                     out_str += 'КП '
 
+                elif line[i] == '}' and check_end_for:
+                    count_curly_braces -= 1
+                    while stack[-1] != '{':
+                        out_str += stack.pop() + ' '
+                    stack.pop()
+                    check_end_for = False
+                    out_str += stack.pop() + " "
+
+                elif line[i] == '}' and check_end_while:
+                    count_curly_braces -= 1
+                    while stack[-1] != '{':
+                        out_str += stack.pop() + ' '
+                    stack.pop()
+                    check_end_for = False
+                    out_str += stack.pop() + " "
+
                 elif line[i] == '}':
                     count_curly_braces -= 1
                     while stack[-1] != '{':
@@ -329,6 +365,14 @@ def translate_to_opz(text):
                     while stack[-1] != '(':
                         out_str += stack.pop() + ' '
                     stack.pop()
+                    if check_for:
+                        check_for = False
+                        check_end_for = True
+                        out_str += 'ЦФ '
+                    if check_while:
+                        check_while = False
+                        check_end_while = True
+                        out_str += 'ЦВ '
 
                 elif len(stack) > 0:
                     if check_variable_type(word):
@@ -345,7 +389,16 @@ def translate_to_opz(text):
                             out_str += last_elem + ' '
                         stack.append(line[i])
 
-                if line[i] == ';':
+                if line[i] == ';' and check_for:
+                    is_empty_pos_for = True
+                    while stack[-1] != '(':
+                        is_empty_pos_for = False
+                        out_str += stack.pop() + ' '
+                    if is_empty_pos_for:
+                        out_str += 'ПЧ '
+
+
+                elif line[i] == ';':
                     while (len(stack) > 0 and stack[-1] != '{' and stack[-1] != 'if'):
                         out_str += stack.pop() + ' '
 
@@ -364,7 +417,7 @@ def translate_to_opz(text):
 
 
 def main():
-    result = (translate_to_opz(read_file()))
+    result = (translate_to_opz(fl.read_file()))
     result = ' '.join(map(str.strip, result.split()))
     print('ОПЗ: \n', result, '\n')
     result_analyzator = fl.print_list(fl.scan([result]))
