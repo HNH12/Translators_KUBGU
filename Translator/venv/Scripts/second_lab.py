@@ -185,7 +185,6 @@ def translate_to_opz(text):
         check_arr_type = False
 
         for i in range(len(line)):
-            print(stack, word, line[i], check_for, check_end_for)
             if not(check_str) and (line[i] == ' ' or is_separator(line[i]) or is_operator(line[i])) and len(line[i]) != 0:
                 if priority(word) == -1 and not(is_separator(word)):
                     out_str += word + ' '
@@ -413,6 +412,8 @@ def translate_to_opz(text):
                     else:
                         check_str = False
 
+        out_str += 'КС ';
+
     return out_str
 
 
@@ -420,9 +421,11 @@ def main():
     result = (translate_to_opz(fl.read_file()))
     result = ' '.join(map(str.strip, result.split()))
     print('ОПЗ: \n', result, '\n')
-    result_analyzator = fl.print_list(fl.scan([result]))
+    list_symb, dictionary = fl.scan([result])
+    result_analyzator = fl.print_list(list_symb)
     print('ОПЗ после обработки лексического анализатора:\n', result_analyzator)
     fl.write_file(result_analyzator)
+    return dictionary
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ def is_separator(word):
 def is_simple_variable_type(word):
     return (
         word in ('short', 'char', 'int', 'signed', 'unsigned',
-                 'long', 'float', 'double')
+                 'long', 'float', 'double', 'void')
     )
 
 # True - если найдено совпадение word с элементом из списка сложных типов
@@ -26,13 +26,13 @@ def is_composite_variable_type(word):
 def is_special_words(word):
     return (
         word in ('while', 'for', 'if', 'else', 'switch', 'case', 'goto', 'break',
-                 'static', 'printf', 'scanf', 'return', 'continue', 'void', 'getch', 'malloc', 'new')
+                 'static', 'printf', 'scanf', 'return', 'continue', 'getch', 'malloc', 'new')
     )
 
 # True - если найдено совпадение word с элементом из списка операций
 def is_operator(word):
     return (
-        word in ('=', '!', '<', '>', '+', '-', '/', '%', '*', '$', '~', '&', '|')
+        word in ('=', '!', '<', '>', '+', '-', '/', '%', '*', '$', '~', '&', '|', '+')
     )
 
 # Добавляет new_elem в словарь dictionary, если new_elem отсуствует в указанном dictionary
@@ -132,7 +132,7 @@ def scan(text):
                         list_symb.append(return_from_dictionary('C', dictionary, word))
 
                     if check_i:
-                        if word not in ['УПЛ', 'НП', 'КП', 'БП', 'ЦФ', 'КФ', 'ЦВ', 'КВ'] and not(is_m(word)) and not(is_aem(word)) and not(is_func(word)):
+                        if word not in ['УПЛ', 'НП', 'КП', 'БП', 'ЦФ', 'КФ', 'ЦВ', 'КВ', 'КС'] and not(is_m(word)) and not(is_aem(word)) and not(is_func(word)):
                             check('I', dictionary, word)
                             list_symb.append(return_from_dictionary('I', dictionary, word))
                         else:
@@ -183,7 +183,7 @@ def scan(text):
 
     file_dict.close()
 
-    return list_symb
+    return list_symb, dictionary
 
 # Возвращает переданный список, преобразованный в строку
 def print_list(list_symb):
@@ -205,7 +205,8 @@ def read_file():
 
 
 def main():
-    write_file(print_list(scan(read_file())))
+    list_symb, dictionary = scan(read_file())
+    write_file(print_list(list_symb))
 
 
 if __name__ == '__main__':
