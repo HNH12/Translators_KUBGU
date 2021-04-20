@@ -92,7 +92,7 @@ def priority(symb):
         return 6
     elif symb in ['+', '-']:
         return 7
-    elif symb in ['*', '/']:
+    elif symb in ['*', '/', '%']:
         return 8
     elif symb in ['**']:
         return 9

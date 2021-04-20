@@ -65,8 +65,11 @@ def translator(text, dictionary):
             if line[i] == 'КС':
                 if count_func > 0:
                     if len(stack) > 0:
+                        help_list = list()
                         while len(stack) > 0:
-                            out_str += str(stack.pop())
+                            help_list.append(str(stack.pop()))
+                        for _ in range(1, len(help_list)+1):
+                            out_str += help_list[-_] + ' '
                         out_str += '\n'
                     else:
                         out_str += '\n'
@@ -115,7 +118,6 @@ def translator(text, dictionary):
             if is_func(line[i]):
                 const_N = line[i][0:len(line[i])-1]
                 param_func = list()
-                print('zc', stack, const_N)
                 for _ in range(int(const_N)):
                     new_elem = stack.pop()
                     if new_elem[0] != '$':
@@ -126,7 +128,6 @@ def translator(text, dictionary):
                     else:
                         param_func.append(new_elem)
                 new_func = ""
-                print('zz',param_func)
                 if param_func[-1][0] == '$':
                     new_func += param_func[-1][1:]
                 else:
@@ -137,12 +138,11 @@ def translator(text, dictionary):
                     if _ != len(param_func):
                         new_func += ', '
                 new_func += ')'
-                print(new_func)
                 stack.append(new_func)
                 continue
 
             if is_O(line[i]):
-                print('hh', stack, get_elem_dict(line[i], dictionary))
+                print('tut', stack, line[i], end='\n')
                 if get_elem_dict(line[i], dictionary) == '&' and get_elem_dict(stack[-1],dictionary) != '&':
                     stack.append(line[i])
                     continue
@@ -150,7 +150,7 @@ def translator(text, dictionary):
                 first_el = stack.pop()
                 current_O = get_elem_dict(line[i], dictionary)
                 if current_O in ['<', '>', '+', '-', '/', '%', '*', '=', '&', '|']:
-                    new_R = get_elem_dict(first_el, dictionary) + ' ' + current_O + ' ' + second_el
+                    new_R = first_el + ' ' + current_O + ' ' + second_el
                     current_R = 'R' + str(count_R)
                     new_dict[current_R] = new_R
                     stack.append(current_R)
@@ -169,9 +169,8 @@ def translator(text, dictionary):
                         new_temp += '$' + str(get_elem_dict(last_el, dictionary))
                     if j < int(get_elem_dict(const_N, dictionary)) - 1:
                         new_temp += ', '
-                    print(new_temp, end=' ')
                 stack.append(new_temp)
-                print('tut', stack, line[i], end='\n')
+
             else:
                 stack.append(line[i])
     print(out_str, new_dict)
