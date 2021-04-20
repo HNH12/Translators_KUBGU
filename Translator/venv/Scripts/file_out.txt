@@ -1,1 +1,1 @@
- I1 N1 W1 I2 N1 W2 2ิ สั N1 N1 อฯ สั I3 N1 W3 สั I3 N2 O1 I3 N3 O2 I3 I3 N1 O3 O1 ึิ สั สั W4 I3 2ิ สั สิ สั สั I3 N4 O2 ึย สั สั I3 I3 N1 O3 O1 สั I4 N3 O1 N1 W3 สั I5 I4 I3 O4 O1 N1 W3 สั W4 I5 2ิ สั สย สั สฯ 
+ I1 N1 W1 I2 N1 W1 I3 N1 W1 3ิ N1 N1 อฯ สั W2 I2 I2 O1 2ิ สั สฯ สั สั I4 N1 W1 I2 I3 I5 4ิ N2 N1 อฯ สั W3 I2 I3 I5 O2 O2 2ิ สั สฯ สั สั I6 N1 W4 I7 N1 W5 2ิ สั N3 N1 อฯ สั I8 I4 N1 N2 N3 4ิ O3 N1 W1 สั I9 N1 W1 สั I8 N1 O4 O5 O5 I8 N4 O6 ฬ1 ำฯห สั I9 I8 O3 สั ฬ1ฬ2 มฯ ฬ1: สั I9 I8 N2 O3 สั ฬ2: สั W2 I9 2ิ สั 
