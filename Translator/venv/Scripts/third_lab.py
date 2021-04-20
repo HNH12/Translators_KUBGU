@@ -50,6 +50,7 @@ def translator(text, dictionary):
         size = len(line.split(' '))
         line = line.split(' ')
         for i in range(size):
+
             # print('ITER NUMB: ', i, '\n', out_str, '\n', 'СТЕК:', stack, '\n\n')
 
             if line[i] == 'НП':
@@ -61,18 +62,23 @@ def translator(text, dictionary):
                 count_func += 1
                 continue
 
-            if line[i] == 'КС' and count_func > 0:
-                if len(stack) > 0:
-                    out_str += str(stack.pop()) + '\n'
-                else:
-                    out_str += '\n'
+            if line[i] == 'КС':
+                if count_func > 0:
+                    if len(stack) > 0:
+                        while len(stack) > 0:
+                            out_str += str(stack.pop())
+                        out_str += '\n'
+                    else:
+                        out_str += '\n'
                 continue
 
             if line[i] == 'КП':
+                count_func -= 1
                 out_str += '}'
                 continue
             if line[i] == 'ЦФ':
-                out_str += 'for(' + str(stack.pop()) + ';' + str(stack.pop()) + ';' + str(stack.pop()) + ')\n{\n'
+                new_for = [stack.pop(), stack.pop(), stack.pop()]
+                out_str += 'for(' + str(new_for[-1]) + ';' + str(new_for[-2]) + ';' + str(new_for[-3]) + ')\n{\n'
                 continue
             if line[i] == 'КФ':
                 out_str += '}\n'
@@ -122,13 +128,18 @@ def translator(text, dictionary):
 
             elif is_w(line[i]) and is_type(line[i], dictionary):
                 const_N = stack.pop()
-                const_type = get_elem_dict(line[i], dictionary)
                 new_temp = ""
-                for i in range(int(get_elem_dict(const_N, dictionary))):
-                    new_temp += '$'+ str(get_elem_dict(stack.pop(), dictionary))
-                    if i < int(get_elem_dict(const_N, dictionary))-1:
+                for j in range(int(get_elem_dict(const_N, dictionary))):
+                    last_el = stack.pop()
+                    if last_el[0] == 'R':
+                        new_temp += '$' + last_el
+                    else:
+                        new_temp += '$' + str(get_elem_dict(last_el, dictionary))
+                    if j < int(get_elem_dict(const_N, dictionary)) - 1:
                         new_temp += ', '
+                    print(new_temp, end=' ')
                 stack.append(new_temp)
+                print('tut', stack, line[i], end='\n')
             else:
                 stack.append(line[i])
     print(out_str)
