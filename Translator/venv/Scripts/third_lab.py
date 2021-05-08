@@ -40,6 +40,53 @@ def is_func(word):
     return word[1] == 'Ф'
 
 
+def split_func(func):
+    print(func)
+    index = func.index('(')
+    last_index = func.index(')')
+    return (func[0:index] + func[last_index+1:], func[index+1:last_index])
+
+
+def get_params(func, params):
+    index = func.index('(')
+    last_index = func.index(')')
+
+    return func[0:index+1] + params + func[last_index]
+
+
+def transaltor_second(text, dictionary, dictionary_r):
+    sublist = text.split('\n')
+    print(sublist)
+    for i in range(len(sublist)):
+        words = sublist[i].split()
+        if words:
+            if words[0] == 'sub':
+                name_func, params = split_func(words[1])
+                new_str = get_params(sublist[i+2].split()[0], params)
+                new_arr = sublist[i+2].split()
+                new_arr[0] = new_str
+                sublist[i] = 'sub ' + name_func
+                sublist[i+2] = ' '.join(new_arr)
+
+            elif words[-1] == '$=':
+                print(words)
+                new_str = ""
+                if len(words) > 2:
+                    new_str += "$" + words[0] + ' ' + words[-1][1] + " " + words[1]
+                else:
+                    new_str += "my @" + get_elem_dict(words[0], dictionary)
+                sublist[i] = new_str
+
+            elif is_O(words[-1]):
+                new_str = ""
+                new_str += words[0] + " " + words[-1] + " " + words[1]
+                sublist[i] = new_str
+
+    print(sublist)
+
+
+
+
 def translator(text, dictionary):
     count_R = 0
     new_dict = dict()
@@ -51,7 +98,28 @@ def translator(text, dictionary):
         line = line.split(' ')
         for i in range(size):
 
-            # print('ITER NUMB: ', i, '\n', out_str, '\n', 'СТЕК:', stack, '\n\n')
+            # print('ITER NUMB: ', i, '\n', out_str, '\n', 'СТЕК:', stack, '\n\n'
+
+            if line[i] == '0АЭМ':
+                if len(stack) > 0 and 'new' == get_elem_dict(stack[-2], dictionary):
+                    stack.pop()
+                    stack.pop()
+                    stack.append('()')
+                continue
+
+            if line[i][-1] == 'М':
+                const_N = line[i][0]
+                new_arr = list()
+                for _ in range(int(get_elem_dict(const_N, dictionary))):
+                    new_arr.append(stack.pop())
+                new_str_arr = "$" + new_arr[-1] + '['
+                for _ in range(2, len(new_arr)+1):
+                    new_str_arr += new_arr[-_]
+                    if _ != len(new_arr):
+                        new_str_arr += ','
+                new_str_arr += ']'
+                stack.append(new_str_arr)
+                continue
 
             if line[i] == 'НП':
                 stack.pop()
@@ -77,17 +145,17 @@ def translator(text, dictionary):
 
             if line[i] == 'КП':
                 count_func -= 1
-                out_str += '}'
+                out_str += '}\n\n'
                 continue
 
             if line[i] == 'УПЛ':
-                out_str += 'if('
+                out_str += '\nif('
                 stack.pop()
                 if_list = list()
                 while len(stack) > 0:
                     if_list.append(str(stack.pop()))
                 for _ in range(1, len(if_list)+1):
-                    out_str += if_list[-_]
+                    out_str += if_list[-_] + ' '
                 out_str += ')\n{'
                 continue
 
@@ -95,21 +163,21 @@ def translator(text, dictionary):
                 if len(stack) > 0:
                     while len(stack) > 0:
                         stack.pop()
-                    out_str += '}\nelse{\n'
+                    out_str += '}\nelse {\n'
                 else:
                     out_str += '}'
                 continue
 
-
             if line[i] == 'ЦФ':
-                new_for = [stack.pop(), stack.pop(), stack.pop()]
-                out_str += 'for(' + str(new_for[-1]) + ';' + str(new_for[-2]) + ';' + str(new_for[-3]) + ')\n{\n'
+                new_for = [stack.pop(), stack.pop(), stack.pop(),stack.pop(),stack.pop(),stack.pop(),stack.pop()]
+                out_str += 'for( ' + str(new_for[-1]) + ' ' + str(new_for[-3]) + ' ' + str(new_for[-2]) + ' ; ' + \
+                           str(new_for[-4]) + ' ; ' + str(new_for[-5]) + ' ' + str(new_for[-7]) + ' ' + str(new_for[-6]) + ' )\n{'
                 continue
             if line[i] == 'КФ':
                 out_str += '}\n'
                 continue
             if line[i] == 'ЦВ':
-                out_str += 'while(' + str(stack.pop()) + ')\n{\n'
+                out_str += ' while(' + str(stack.pop()) + ')\n{\n'
                 continue
             if line[i] == 'КВ':
                 out_str += '}\n'
@@ -136,20 +204,22 @@ def translator(text, dictionary):
                 for _ in range(2, len(param_func)+1):
                     new_func += param_func[-_]
                     if _ != len(param_func):
-                        new_func += ', '
+                        new_func += ','
                 new_func += ')'
                 stack.append(new_func)
                 continue
 
             if is_O(line[i]):
-                print('tut', stack, line[i], end='\n')
-                if get_elem_dict(line[i], dictionary) == '&' and get_elem_dict(stack[-1],dictionary) != '&':
+                if get_elem_dict(line[i], dictionary) == '&' and not(is_O(stack[-1])):
+                    stack.append(line[i])
+                    continue
+                if get_elem_dict(line[i], dictionary) == '=' and not(is_O(stack[-1])):
                     stack.append(line[i])
                     continue
                 second_el = stack.pop()
                 first_el = stack.pop()
                 current_O = get_elem_dict(line[i], dictionary)
-                if current_O in ['<', '>', '+', '-', '/', '%', '*', '=', '&', '|']:
+                if current_O in ['<', '>', '+', '-', '/', '%', '*', '&', '|']:
                     new_R = first_el + ' ' + current_O + ' ' + second_el
                     current_R = 'R' + str(count_R)
                     new_dict[current_R] = new_R
@@ -166,16 +236,19 @@ def translator(text, dictionary):
                     if last_el[0] == 'R':
                         new_temp += '$' + last_el
                     else:
-                        new_temp += '$' + str(get_elem_dict(last_el, dictionary))
+                        if last_el[0] == '(':
+                            break
+                        else:
+                            new_temp += '$' + str(get_elem_dict(last_el, dictionary))
                     if j < int(get_elem_dict(const_N, dictionary)) - 1:
                         new_temp += ', '
-                stack.append(new_temp)
+                if new_temp != "":
+                    stack.append(new_temp)
 
             else:
                 stack.append(line[i])
-    print(out_str, new_dict)
 
-
+    transaltor_second(out_str, dictionary, new_dict)
 
 
 def read_file():
@@ -187,7 +260,6 @@ def main():
     dictionary = sl.main()
     print(dictionary)
     translator(read_file(), dictionary)
-
 
 
 if __name__ == '__main__':
