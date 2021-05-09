@@ -3,14 +3,7 @@ void main(char param)
     int i;
     for(i=0; i<10; i = i+1)
     {
-        printf(i);
+        printf('Сам тупой');
     }
-
-    while(i<12)
-    {
-        i = i+1;
-        int b = 10;
-        int c = b - i;
-        printf(c);
-    }
+    i = 4;
 }
