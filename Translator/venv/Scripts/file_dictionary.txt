@@ -5,6 +5,7 @@ char	2
 int	3
 for	4
 printf	5
+while	6
 
 Идентификаторы
 Лексема	Код

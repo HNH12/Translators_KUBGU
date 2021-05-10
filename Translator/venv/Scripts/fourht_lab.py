@@ -28,7 +28,7 @@ def get_elem_dict():
 
 
 def error():
-    print('Ты тупой, я ухожу')
+    print('Ошибка!')
     exit(0)
 
 
@@ -71,6 +71,8 @@ def operations():
         declare_args()
     elif get_elem_dict() == 'for':
         is_for()
+    elif get_elem_dict() == 'while':
+        is_while()
     elif is_ident():
         scan()
         if get_elem_dict() == '=':
@@ -78,6 +80,7 @@ def operations():
             expression()
             if get_elem_dict() != ';':
                 error()
+            scan()
     else:
         error()
 
@@ -220,6 +223,32 @@ def is_for():
 
     if get_elem_dict() != '}':
         error()
+    scan()
+
+
+def is_while():
+    scan()
+
+    if get_elem_dict() != '(':
+        error()
+
+    scan()
+    condition()
+
+    if get_elem_dict() != ')':
+        error()
+
+    scan()
+    if get_elem_dict() != '{':
+        error()
+
+    scan()
+    text()
+
+    if get_elem_dict() != '}':
+        error()
+
+    scan()
 
 
 def condition():
@@ -266,8 +295,11 @@ def main():
     out_str, dictionary = fl.scan(fl.read_file())
     out_str = [el for el in out_str if el != '\n']
     print(out_str)
-    scan()
-    program()
+    try:
+        scan()
+        program()
+    except:
+        error()
 
 
 if __name__ == '__main__':

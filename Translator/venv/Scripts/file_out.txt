@@ -1,1 +1,13 @@
- I1 N1 W1 I2 N1 W2 2� �� N1 N1 �� �� I3 N1 W3 �� I3 N2 O1 I3 N3 O2 I3 I3 N1 O3 O1 �� �� �� W4 I3 2� �� �� �� �� I3 N4 O2 �� �� �� I3 I3 N1 O3 O1 �� I4 N3 O1 N1 W3 �� I5 I4 I3 O4 O1 N1 W3 �� W4 I5 2� �� �� �� �� 
+ W1 I1 R1 W2 I2 R2 
+ R3 
+ W3 I3 R4 
+ W4 R1 I3 O1 N1 R4 I3 O2 N2 R4 I3 O1 I3 O3 N3 R2 
+ R3 
+ W5 R1 C1 R2 R4 
+ R5 
+ W6 R1 I3 O2 N4 R2 
+ R3 
+ I3 O1 I3 O3 N3 R4 
+ R5 
+ I3 O1 N4 R4 
+ R5 
