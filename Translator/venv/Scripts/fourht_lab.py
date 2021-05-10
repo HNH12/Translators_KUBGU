@@ -73,6 +73,8 @@ def operations():
         is_for()
     elif get_elem_dict() == 'while':
         is_while()
+    elif get_elem_dict() == 'if':
+        is_if()
     elif is_ident():
         scan()
         if get_elem_dict() == '=':
@@ -251,6 +253,46 @@ def is_while():
     scan()
 
 
+def is_if():
+    scan()
+
+    if get_elem_dict() != '(':
+        error()
+
+    scan()
+    condition()
+
+    if get_elem_dict() != ')':
+        error()
+
+    scan()
+    if get_elem_dict() != '{':
+        error()
+
+    scan()
+    text()
+    if get_elem_dict() != '}':
+        error()
+
+    scan()
+    if get_elem_dict() == 'else':
+        is_else()
+
+
+def is_else():
+    scan()
+    if get_elem_dict() != '{':
+        error()
+
+    scan()
+    text()
+
+    if get_elem_dict() != '}':
+        error()
+
+    scan()
+
+
 def condition():
     expression()
     if get_elem_dict() not in ['<', '>', '==', '!=', '>=', '<=']:
@@ -294,12 +336,12 @@ def main():
     global out_str, dictionary
     out_str, dictionary = fl.scan(fl.read_file())
     out_str = [el for el in out_str if el != '\n']
-    print(out_str)
+    
     try:
         scan()
         program()
     except:
-        error()
+        pass
 
 
 if __name__ == '__main__':
