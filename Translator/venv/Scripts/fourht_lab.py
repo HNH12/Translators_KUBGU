@@ -2,13 +2,11 @@ import first_lab as fl
 import sys
 
 
-# while, if, несколько функций;
-
-
 out_str = list()
 iterator = 0
 current_symbol = ''
 dictionary = dict()
+current_str = 1
 
 
 def is_ident():
@@ -27,8 +25,8 @@ def get_elem_dict():
             return key
 
 
-def error():
-    print('Ошибка!')
+def error(text):
+    print('Ошибка!', text, 'Ошибка в строке:', current_str)
     exit(0)
 
 
@@ -39,28 +37,34 @@ def scan():
 
 
 def program():
+    global current_str
     if get_elem_dict() != 'void':
-        error()
+        error('Неправильная конструкция функции.')
 
     scan()
     if get_elem_dict() != 'main':
-        error()
+        error('Неправильное имя главной функции.')
 
     declare_params_main()
 
     scan()
+    current_str += 1
     if get_elem_dict() != '{':
-        error()
+        error('Отсутствует символ начала описания функции.')
 
     scan()
+    current_str += 1
     text()
 
+    current_str += 1
     if get_elem_dict() != '}':
-        error()
+        error('Отсутствует символ окончания программы.')
 
 
 def text():
+    global current_str
     while get_elem_dict() != '}':
+        current_str += 1
         operations()
 
 
@@ -81,22 +85,22 @@ def operations():
             scan()
             expression()
             if get_elem_dict() != ';':
-                error()
+                error('Отсутствует символ окончания строки.')
             scan()
     else:
-        error()
+        error('Неизвестная конструкция.')
 
 
 def declare():
     scan()
     if not is_ident():
-        error()
+        error('Неизвестный идентификатор при описании.')
 
     scan()
     while get_elem_dict() == ',':
         scan()
         if not is_ident():
-            error()
+            error('Неизвестный идентификатор при описании.')
 
         scan()
 
@@ -106,7 +110,7 @@ def declare():
     if get_elem_dict() == ';':
         scan()
     else:
-        error()
+        error('Неверная конструкция описания переменных.')
 
 
 def expression():
@@ -130,7 +134,7 @@ def factor():
         scan()
         expression()
         if get_elem_dict() != ')':
-            error()
+            error('Отсутствует закрывающая скобка.')
         scan()
     else:
         argument()
@@ -140,7 +144,7 @@ def argument():
     check = False
 
     if not is_ident() and not is_const():
-        error()
+        error('Неизвестный аргумент функции.')
 
     if is_ident():
         check = True
@@ -150,38 +154,38 @@ def argument():
         scan()
         argument()
         if get_elem_dict() != ']':
-            error()
+            error('Отсутствует закрывающая скобка при объявлении массива.')
         scan()
 
 
 def declare_params_main():
     scan()
     if get_elem_dict() != '(':
-        error()
+        error('Пропущено объявление аргументов функции.')
 
     scan()
     if get_elem_dict() != 'char':
-        error()
+        error('Неверный тип аргумента у главной функции.')
 
     scan()
     if get_elem_dict() != 'param':
-        error()
+        error('Неизвестный аргумент для функции main.')
 
     scan()
     if get_elem_dict() != ')':
-        error()
+        error('Отсутствует закрывающая скобка.')
 
 
 def declare_args():
     scan()
     if get_elem_dict() != '(':
-        error()
+        error('Отсутствует открывающая скобка.')
 
     scan()
     if get_elem_dict() == ')':
         scan()
         if get_elem_dict() != ';':
-            error()
+            error('Отсутствует символ окончания строки.')
         scan()
         return
 
@@ -191,64 +195,69 @@ def declare_args():
         expression()
 
     if get_elem_dict() != ')':
-        error()
+        error('Отсутствует закрывающая скобка.')
 
     scan()
     if get_elem_dict() != ';':
-        error()
+        error('Отсутствует символ окончания строки.')
 
     scan()
 
 
 def is_for():
+    global current_str
     scan()
 
     if get_elem_dict() != '(':
-        error()
+        error('Отсутствует открывающая скобка при объявлении оператора.')
 
     declare()
     condition()
     if get_elem_dict() != ';':
-        error()
+        error('Отсутствует разделитель при объявлении.')
 
     scan()
     step_loop()
     if get_elem_dict() != ')':
-        error()
+        error('Отсутствует закрывающая скобка.')
 
     scan()
+    current_str += 1
     if get_elem_dict() != '{':
-        error()
+        error('Отсутсвует символ начала оператора.')
 
     scan()
     text()
 
+    current_str += 1
     if get_elem_dict() != '}':
-        error()
+        error('Отсутствует символ окончания оператора.')
     scan()
 
 
 def is_while():
+    global current_str
+    
     scan()
-
     if get_elem_dict() != '(':
-        error()
+        error('Отсутствует открывающая скобка при объявлении оператора.')
 
     scan()
     condition()
 
     if get_elem_dict() != ')':
-        error()
+        error('Отсутствует закрывающая скобка.')
 
     scan()
     if get_elem_dict() != '{':
-        error()
+        error('Отсутствует символ начала оператора.')
 
     scan()
     text()
 
+    current_str += 1
     if get_elem_dict() != '}':
-        error()
+        error('Отсутствует символ окончания оператора.')
 
     scan()
 
@@ -257,22 +266,22 @@ def is_if():
     scan()
 
     if get_elem_dict() != '(':
-        error()
+        error('Отсутствует открывающая скобка при объявлении оператора.')
 
     scan()
     condition()
 
     if get_elem_dict() != ')':
-        error()
+        error('Отсутствует закрывающая скобка при объявлении оператора.')
 
     scan()
     if get_elem_dict() != '{':
-        error()
+        error('Отсутствует символ начала описания оператора.')
 
     scan()
     text()
     if get_elem_dict() != '}':
-        error()
+        error('Отсутствует символ окончания описания оператора.')
 
     scan()
     if get_elem_dict() == 'else':
@@ -282,13 +291,13 @@ def is_if():
 def is_else():
     scan()
     if get_elem_dict() != '{':
-        error()
+        error('Отсутствует символ начала описания оператора.')
 
     scan()
     text()
 
     if get_elem_dict() != '}':
-        error()
+        error('Отсутствует символ окончания описания оператора.')
 
     scan()
 
@@ -296,7 +305,7 @@ def is_else():
 def condition():
     expression()
     if get_elem_dict() not in ['<', '>', '==', '!=', '>=', '<=']:
-        error()
+        error('Неизвестный символ при описании условия.')
 
     scan()
     expression()
@@ -304,41 +313,40 @@ def condition():
 
 def step_loop():
     if not is_ident():
-        error()
+        error('Неизвестный идентификатор.')
 
     scan()
     if get_elem_dict() not in ['++', '--']:
         if get_elem_dict() != '=':
-            error()
+            error('Неверное объявление шага цикла.')
         scan()
         expression()
     elif get_elem_dict() in ['++', '--']:
         scan()
     else:
-        error()
+        error('Неверное объявление шага цикла.')
 
 
 def declare_params_func():
-    check_ident_end = True
-
-    if get_elem_dict() != '(':
-        error()
-
-    scan()
-    if not fl.is_simple_variable_type(get_elem_dict()) or not fl.is_composite_variable_type(get_elem_dict()):
-        error()
-
-    while get_elem_dict() == ',':
-        pass
+    pass
+    # if get_elem_dict() != '(':
+    #     error('Отсутствует открывающая скобка ')
+    #
+    # scan()
+    # if not fl.is_simple_variable_type(get_elem_dict()) or not fl.is_composite_variable_type(get_elem_dict()):
+    #     error()
+    #
+    # while get_elem_dict() == ',':
+    #     pass
 
 
 def main():
     global out_str, dictionary
     out_str, dictionary = fl.scan(fl.read_file())
     out_str = [el for el in out_str if el != '\n']
-    
+
     try:
-        scan()
+        scan();
         program()
     except:
         pass

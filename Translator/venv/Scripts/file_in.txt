@@ -9,7 +9,7 @@ void main(char param)
     {
         i = i + 1;
     }
-    if(i<5)
+    if(i<4)
     {
         i = i - 1;
     } else {
