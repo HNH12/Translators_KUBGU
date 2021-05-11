@@ -1,0 +1,27 @@
+sub pow
+{
+my($a) = @_;
+printf(a * a) ;
+}
+
+sub f
+{
+my(a) = @_;
+return(a + b + c) ;
+}
+
+sub main
+{
+my($param) = @_;
+$y = f(1);
+$code ;
+
+if(y < 1 & & y > 0 )
+{
+code = y;
+}
+else {
+
+code = y % 2;
+}
+printf(code) ;

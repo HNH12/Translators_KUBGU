@@ -1,19 +1,20 @@
+int pow(int a) {
+    printf(a*a);
+}
+
+int f(a) {
+    return(a+b+c);
+}
+
 void main(char param)
 {
-    int i;
-    for(i=0; i<10; i = i+1)
-    {
-        printf('123');
+    int y = f(1);
+    int code;
+    if((y<1) && (y>0)) {
+        code = y;
     }
-    while(i<4)
-    {
-        i = i + 1;
+    else {
+        code = y%2;
     }
-    if(i<4)
-    {
-        i = i - 1;
-    } else {
-        i = i - 2;
-    }
-    i = 4;
+    printf(code);
 }

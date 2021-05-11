@@ -237,7 +237,7 @@ def is_for():
 
 def is_while():
     global current_str
-    
+
     scan()
     if get_elem_dict() != '(':
         error('Отсутствует открывающая скобка при объявлении оператора.')

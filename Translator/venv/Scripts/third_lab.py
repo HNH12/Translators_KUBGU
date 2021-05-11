@@ -41,7 +41,6 @@ def is_func(word):
 
 
 def split_func(func):
-    print(func)
     index = func.index('(')
     last_index = func.index(')')
     return (func[0:index] + func[last_index+1:], func[index+1:last_index])
@@ -54,9 +53,8 @@ def get_params(func, params):
     return func[0:index+1] + params + func[last_index]
 
 
-def transaltor_second(text, dictionary, dictionary_r):
+def get_variable_perl(text, dictionary, dictionary_r):
     sublist = text.split('\n')
-    print(sublist)
     for i in range(len(sublist)):
         words = sublist[i].split()
         if words:
@@ -69,7 +67,6 @@ def transaltor_second(text, dictionary, dictionary_r):
                 sublist[i+2] = ' '.join(new_arr)
 
             elif words[-1] == '$=':
-                print(words)
                 new_str = ""
                 if len(words) > 2:
                     new_str += "$" + words[0] + ' ' + words[-1][1] + " " + words[1]
@@ -82,9 +79,35 @@ def transaltor_second(text, dictionary, dictionary_r):
                 new_str += words[0] + " " + words[-1] + " " + words[1]
                 sublist[i] = new_str
 
-    print(sublist)
+    return sublist
 
 
+def transalate_R(out_str, dictionary, dictionary_R):
+    new_str = list()
+    for l in out_str:
+        while l.find('R') != -1:
+            replace_symb = l[l.find('R')] + l[l.find('R') + 1]
+            l = l.replace(replace_symb, dictionary_R[replace_symb])
+        while l.find('I') != -1:
+            replace_symb = l[l.find('I')] + l[l.find('I') + 1]
+            l = l.replace(replace_symb, get_elem_dict(replace_symb, dictionary))
+        while l.find('O') != -1:
+            replace_symb = l[l.find('O')] + l[l.find('O') + 1]
+            l = l.replace(replace_symb, get_elem_dict(replace_symb, dictionary))
+        while l.find('N') != -1:
+            replace_symb = l[l.find('N')] + l[l.find('N') + 1]
+            l = l.replace(replace_symb, get_elem_dict(replace_symb, dictionary))
+        if l != '{' and l != '}' and l.find('sub') == -1 and l.find('while') == -1 and l.find('if') == -1 \
+                and l.find('for') == -1 and l!='' and l.find('else') == -1:
+            l += ';'
+        new_str.append(l)
+
+    return new_str
+
+
+def translate_to_file_perl(out_str):
+    with open('perl_file_out.txt','w') as file:
+        file.write('\n'.join(out_str))
 
 
 def translator(text, dictionary):
@@ -248,7 +271,7 @@ def translator(text, dictionary):
             else:
                 stack.append(line[i])
 
-    transaltor_second(out_str, dictionary, new_dict)
+    translate_to_file_perl(transalate_R(get_variable_perl(out_str, dictionary, new_dict), dictionary, new_dict))
 
 
 def read_file():
